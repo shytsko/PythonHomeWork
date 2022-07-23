@@ -12,20 +12,25 @@ def GetRange(data: list) -> list:
         return [(minValue, maxValue)]
     else:
         result = []
-        notItems = list({n for n in range(minValue, maxValue)} - setItems)
+        notItems = list({n for n in range(minValue, maxValue)} - items)
         notItems.sort()
         for a in notItems:
-            sequence = [n for n in items if n < a]
+            sequence = {n for n in items if n < a}
             if len(sequence) > 1:
                 result.append((min(sequence), max(sequence)))
-            items.discard(sequence)
-
+            items = items - sequence
+        return result
 
         lowerBound = minValue
         upperBound = minValue
 
 
-lst1 = [1, 5, 2, 3, 4, 6, 1, 7]
-lst2 = [1, 5, 2, 3, 4, 1, 7]
-lst3 = [1, 5, 2, 3, 4, 1, 7, 8, 9, 11, 15, 20, 16, 18, 17]
-GetRange(lst2)
+test1 = [1, 5, 2, 3, 4, 6, 1, 7]
+test2 = [1, 5, 2, 3, 4, 1, 7]
+test3 = [1, 5, 2, 3, 4, 1, 7, 8, 9, 11, 15, 20, 16, 18, 17, 23, 21]
+print(test1, end=" -> ")
+print(GetRange(test1))
+print(test2, end=" -> ")
+print(GetRange(test2))
+print(test3, end=" -> ")
+print(GetRange(test3))
