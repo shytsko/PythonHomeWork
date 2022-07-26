@@ -21,9 +21,6 @@ def GetRange(data: list) -> list:
             items = items - sequence
         return result
 
-        lowerBound = minValue
-        upperBound = minValue
-
 
 test1 = [1, 5, 2, 3, 4, 6, 1, 7]
 test2 = [1, 5, 2, 3, 4, 1, 7]
