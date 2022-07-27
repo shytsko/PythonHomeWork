@@ -65,9 +65,9 @@ test2 = "(1+2)*3"
 test3 = "1-2*3"
 test4 = "(8*(6+3)/(12-9.8))*3.5"
 test5 = "(1+2+1)*3"
-print(f"{test0} = {Calculator(test0)}; eval = {eval(test0)}")
-print(f"{test1} = {Calculator(test1)}; eval = {eval(test1)}")
-print(f"{test2} = {Calculator(test2)}; eval = {eval(test2)}")
-print(f"{test3} = {Calculator(test3)}; eval = {eval(test3)}")
-print(f"{test4} = {Calculator(test4)}; eval = {eval(test4)}")
-print(f"{test5} = {Calculator(test5)}; eval = {eval(test5)}")
+print(f"{test0} = {Calculator(test0)}")
+print(f"{test1} = {Calculator(test1)}")
+print(f"{test2} = {Calculator(test2)}")
+print(f"{test3} = {Calculator(test3)}")
+print(f"{test4} = {Calculator(test4)}")
+print(f"{test5} = {Calculator(test5)}")
