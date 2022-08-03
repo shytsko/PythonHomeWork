@@ -113,8 +113,11 @@ def GetAllPersons(database):
     return [GetPerson(database, key) for key in database["persons"].keys()]
 
 
-def FilterPerson(database, search):
+def GetFilterPersonID(database, search):
     return [k for k, v in database["persons"].items() if search.lower() in v[0].lower()]
+
+def GetFilterPerson(database, search):
+    return [GetPerson(database, k) for k, v in database["persons"].items() if search.lower() in v[0].lower()]
 
 
 def RemovePerson(database, id):
@@ -133,12 +136,10 @@ if __name__ == "__main__":
     print()
     print(GetAllPersons(db))
     print()
-    # filter = FilterPerson(db, "Иван")
-    # for id in filter:
-    #     print(GetPerson(db, id))
-    # RemovePerson(db, 5)
-    # print(GetAllPersons(db))
-    # print()
+
+    print(GetFilterPersonID(db, "Иван"))
+    print(GetFilterPerson(db, "Иван"))
+
     # RemovePerson(db, 55)
     # print()
     # filter = FilterPerson(db, "Иван")
