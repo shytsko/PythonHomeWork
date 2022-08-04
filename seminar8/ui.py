@@ -16,20 +16,21 @@ def InputData():
 
 
 def ShowAndChoiceData(data, msg):
-    choices = [f"{item[0]}, {item[1]}, {item[2]}, {item[3]}, {item[4]}" for item in data]
+    choices = ["id, ФИО, Телефон, Отдел, Должность", " "] + [f"{item[0]}, {item[1]}, {item[2]}, {item[3]}, {item[4]}" for item in data]
     return choicebox(msg, msg, choices)
 
-def Showdirectory(data, msg):
-    choices = [f"{item[0]}, {item[1]}" for item in data]
+def ShowDirectory(data, msg):
+    choices = ["id, Наименование", " "] + [f"{item[0]}, {item[1]}" for item in data]
     return choicebox(msg, msg, choices)
 
 
 def GetRemoveID(data):
     removeItem = ShowAndChoiceData(data, "Выберите запись для удаления")
     if removeItem is not None:
-        if ynbox("Вы на самом деле хотите удалить запись?\n" + removeItem):
-            id = int(removeItem.split(",")[0])
-            return id
+        if removeItem[0].isdigit():
+            if ynbox("Вы на самом деле хотите удалить запись?\n" + removeItem):
+                id = int(removeItem.split(",")[0])
+                return id
     return None
 
 def GetFilterValue():

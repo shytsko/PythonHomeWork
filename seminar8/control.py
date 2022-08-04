@@ -35,9 +35,9 @@ def run():
                 if filterValue is not None:
                     ShowAndChoiceData(GetFilterPerson(db, filterValue), f"Отфильтрованные записи по '{filterValue}'")
             case "Показать справочник отделов":
-                Showdirectory(GetAllDepartments(db), "Справочник отделов")
+                ShowDirectory(GetAllDepartments(db), "Справочник отделов")
             case "Показать справочник должностей":
-                Showdirectory(GetAllPositions(db), "Справочник должностей")
+                ShowDirectory(GetAllPositions(db), "Справочник должностей")
             case "Сохранить":
                 SaveDataBase(db)
             case _:
