@@ -19,36 +19,33 @@ conv_handler = ConversationHandler(
                  CommandHandler('save', SaveDB)
                  ],
 
-        #Add State
+        # Add State
         INPUTNAME: [MessageHandler(Filters.text & ~Filters.command, InputName),
                     CommandHandler('cancel', CancelAdd)],
         INPUTTEL: [MessageHandler(Filters.text & ~Filters.command, InputTel),
-                    CommandHandler('cancel', CancelAdd)],
+                   CommandHandler('cancel', CancelAdd)],
         INPUTDEP: [MessageHandler(Filters.text & ~Filters.command, InputDepartment),
-                    CommandHandler('cancel', CancelAdd)],
+                   CommandHandler('cancel', CancelAdd)],
         INPUTPOS: [MessageHandler(Filters.text & ~Filters.command, InputPosition),
-                    CommandHandler('cancel', CancelAdd)],
+                   CommandHandler('cancel', CancelAdd)],
 
-        #Filter State
+        # Filter State
         INPUTFILTER: [MessageHandler(Filters.text & ~Filters.command, InputFilter),
-                    CommandHandler('cancel', CancelFilter)],
+                      CommandHandler('cancel', CancelFilter)],
 
-        #Remove State
+        # Remove State
         INPUTID: [MessageHandler(Filters.text & ~Filters.command, InputID),
-                    CommandHandler('cancel', CancelRemove)],
+                  CommandHandler('cancel', CancelRemove)],
         CONFIRMREM: [CommandHandler('confirm', ConfirmRemove),
                      CommandHandler('cancel', CancelRemove)]
     },
-    fallbacks = [CommandHandler('done', Done)],
+    fallbacks=[CommandHandler('done', Done)],
 )
 
 updater.dispatcher.add_handler(conv_handler)
-updater.dispatcher.add_handler(MessageHandler(Filters.command, unknown))
-updater.dispatcher.add_handler(MessageHandler(Filters.text, text))
-# updater.dispatcher.add_error_handler(error)
-
+updater.dispatcher.add_handler(MessageHandler(Filters.command, Unknown))
+updater.dispatcher.add_handler(MessageHandler(Filters.text, Text))
 
 print("Бот запущен.")
 updater.start_polling()
 updater.idle()
-

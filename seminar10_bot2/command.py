@@ -200,17 +200,33 @@ def CancelRemove(update: Update, context: CallbackContext) -> int:
 
 
 def ViewDepartments(update: Update, context: CallbackContext) -> int:
+    global _db
     user = update.message.from_user
     logger.info(
         f"Пользователь {user.first_name} выбрал просмотр справочника отделов")
+    departments = GetAllDepartments(_db)
+    if len(departments) != 0:
+        message = "\n".join(
+            [f"{item[0]}, {item[1]}" for item in departments])
+    else:
+        message = "Справочник отделов пуст"
+    update.message.reply_text(message)
     SendMenu(update, context)
     return SELECT
 
 
 def ViewPositions(update: Update, context: CallbackContext) -> int:
+    global _db
     user = update.message.from_user
     logger.info(
-        f"Пользователь {user.first_name} выбрал просмотр справочника должностей")
+        f"Пользователь {user.first_name} выбрал просмотр справочника отделов")
+    positions = GetAllPositions(_db)
+    if len(positions) != 0:
+        message = "\n".join(
+            [f"{item[0]}, {item[1]}" for item in positions])
+    else:
+        message = "Справочник должностей пуст"
+    update.message.reply_text(message)
     SendMenu(update, context)
     return SELECT
 
@@ -230,18 +246,15 @@ def Done(update: Update, context: CallbackContext) -> int:
     return ConversationHandler.END
 
 
-def text(update, context):
+def Text(update, context):
     user = update.message.from_user
     text_received = update.message.text
     logger.info(
         f"Пользователь {user.first_name} ввел сообщение '{update.message.text}'")
 
 
-def unknown(update, context):
+def Unknown(update, context):
     user = update.message.from_user
     logger.info(
         f"Пользователь {user.first_name} ввел не обработанную комаду '{update.message.text}'")
 
-
-def error(update, context):
-    pass
