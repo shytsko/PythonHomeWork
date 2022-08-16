@@ -1,106 +1,154 @@
-import json
+import sqlite3 as dbe
+import os.path
+
+# CREATE TABLE departments (
+#     id         INTEGER PRIMARY KEY AUTOINCREMENT
+#                        NOT NULL,
+#     department STRING  NOT NULL
+# );
+
+# CREATE TABLE positions (
+#     id       INTEGER PRIMARY KEY AUTOINCREMENT,
+#     position STRING  NOT NULL
+# );
+
+# CREATE TABLE persons (
+#     id         INTEGER PRIMARY KEY AUTOINCREMENT
+#                        NOT NULL,
+#     name       STRING  NOT NULL,
+#     tel        STRING  NOT NULL,
+#     department INTEGER NOT NULL
+#                        REFERENCES departments (id),
+#     position   INTEGER NOT NULL
+#                        REFERENCES positions (id)
+# );
 
 
 def OpenDataBase():
     try:
-        with open(r"seminar10_bot2\directory.json", "r", encoding="utf-8") as fh:
-            db = json.load(fh)
-            db["persons"] = {int(k): v for k, v in db["persons"].items()}
-            db["departments"] = {
-                int(k): v for k, v in db["departments"].items()}
-            db["positions"] = {int(k): v for k, v in db["positions"].items()}
-            return db
+        if os.path.exists("seminar10_bot2\db.db"):
+            return dbe.connect("seminar10_bot2\db.db")
+        else:
+            raise
     except:
-        return {"persons": {}, "departments": {}, "positions": {}}
+        db = dbe.connect("seminar10_bot2\db.db")
+        cur = db.cursor()
+        cur.execute(
+            "CREATE TABLE departments (id INTEGER PRIMARY KEY AUTOINCREMENT, department TEXT NOT NULL)")
+        cur.execute(
+            "CREATE TABLE positions (id INTEGER PRIMARY KEY AUTOINCREMENT, position TEXT NOT NULL);")
+        cur.execute('''CREATE TABLE persons (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                             name TEXT NOT NULL,
+                                             tel  TEXT  NOT NULL,
+                                             department INTEGER NOT NULL REFERENCES departments (id),
+                                             position   INTEGER NOT NULL REFERENCES positions (id));''')
+        db.commit()
+        return db
 
 
-def SaveDataBase(directory):
-    with open(r"seminar10_bot2\directory.json", "w", encoding="utf-8") as file:
-        file.write(json.dumps(directory, ensure_ascii=False))
+def SaveDataBase(database: dbe.Connection):
+    database.commit()
 
 
-def GetDepartmentID(database, department):
-    if department in [n[0] for n in database["departments"].values()]:
-        for k, v in database["departments"].items():
-            if department == v[0]:
-                return k
+def CloseDataBase(database: dbe.Connection):
+    database.close()
+
+
+def GetDepartmentID(database: dbe.Connection, department: str):
+    cur = database.cursor()
+    cur.execute(
+        f"SELECT id FROM departments WHERE department = '{department}';")
+    result = cur.fetchall()
+    if len(result) != 0:
+        return result[0][0]
     else:
         return None
 
 
-def AddDepartment(database, department):
+def AddDepartment(database: dbe.Connection, department: str):
     departmentID = GetDepartmentID(database, department)
     if departmentID is None:
-        if len(database["departments"]) == 0:
-            departmentID = 1
-        else:
-            departmentID = max(database["departments"].keys())+1
-        database["departments"][departmentID] = [department]
+        cur = database.cursor()
+        cur.execute(
+            f"INSERT INTO departments (department) VALUES('{department}');")
+    departmentID = GetDepartmentID(database, department)
     return departmentID
 
 
 def GetAllDepartments(database):
-    return [(id, node[0]) for id, node in database["departments"].items()]
+    cur = database.cursor()
+    cur.execute("SELECT * FROM departments;")
+    result = cur.fetchall()
+    return result
 
 
-def GetPositionstID(database, position):
-    if position in [n[0] for n in database["positions"].values()]:
-        for k, v in database["positions"].items():
-            if position == v[0]:
-                return k
+def GetPositionstID(database: dbe.Connection, position: str):
+    cur = database.cursor()
+    cur.execute(
+        f"SELECT id FROM positions WHERE position = '{position}';")
+    result = cur.fetchall()
+    if len(result) != 0:
+        return result[0][0]
     else:
         return None
 
 
-def AddPosition(database, position):
+def AddPosition(database: dbe.Connection, position: str):
     positionID = GetPositionstID(database, position)
     if positionID is None:
-        if len(database["positions"]) == 0:
-            positionID = 1
-        else:
-            positionID = max(database["positions"].keys())+1
-        database["positions"][positionID] = [position]
+        cur = database.cursor()
+        cur.execute(
+            f"INSERT INTO positions (position) VALUES('{position}');")
+    positionID = GetPositionstID(database, position)
     return positionID
 
 
 def GetAllPositions(database):
-    return [(id, node[0]) for id, node in database["positions"].items()]
+    cur = database.cursor()
+    cur.execute("SELECT * FROM positions;")
+    result = cur.fetchall()
+    return result
 
 
-def AddPerson(database, name, tel, department, position):
+def AddPerson(database: dbe.Connection, name: str, tel: str, department: str, position: str):
     departmentID = AddDepartment(database, department)
     positionID = AddPosition(database, position)
-    if len(database["persons"]) == 0:
-        personID = 1
-    else:
-        personID = max(database["persons"].keys())+1
-    database["persons"][personID] = [name, tel, departmentID, positionID]
+    cur = database.cursor()
+    cur.execute(f''' INSERT 
+                     INTO persons (name, tel, department, position) 
+                     VALUES('{name}', '{tel}', {departmentID}, {positionID}); ''')
 
 
-def GetPerson(database, id):
-    if id in database["persons"]:
-        return (
-            id,
-            database["persons"][id][0],
-            database["persons"][id][1],
-            database["departments"][database["persons"][id][2]][0],
-            database["positions"][database["persons"][id][3]][0]
-        )
-    else:
-        return None
+def GetPerson(database: dbe.Connection, id: int):
+    cur = database.cursor()
+    cur.execute(f'''SELECT persons.id, persons.name, persons.tel, departments.department, positions.position
+                    FROM  persons
+                    LEFT JOIN departments ON persons.department=departments.id
+                    LEFT JOIN positions ON persons.position=positions.id
+                    WHERE persons.id={id};
+                 ''')
+    result = cur.fetchall()
+    return result[0] if len(result) != 0 else None
 
 
-def GetAllPersons(database):
-    return [GetPerson(database, key) for key in database["persons"].keys()]
+def GetAllPersons(database: dbe.Connection):
+    cur = database.cursor()
+    cur.execute(f'''SELECT persons.id, persons.name, persons.tel, departments.department, positions.position
+                    FROM  persons
+                    LEFT JOIN departments ON persons.department=departments.id
+                    LEFT JOIN positions ON persons.position=positions.id;
+                 ''')
+    result = cur.fetchall()
+    return result
 
 
-def GetFilterPersonID(database, search):
-    return [k for k, v in database["persons"].items() if search.lower() in v[0].lower()]
+def GetFilterPerson(database: dbe.Connection, search: str):
+    data = GetAllPersons(database)
+    result = [item for item in data if search in search.lower()
+              in item[1].lower()]
+    return result
 
 
-def GetFilterPerson(database, search):
-    return [GetPerson(database, k) for k, v in database["persons"].items() if search.lower() in v[0].lower()]
-
-
-def RemovePerson(database, id):
-    database["persons"].pop(id, None)
+def RemovePerson(database: dbe.Connection, id: int):
+    cur = database.cursor()
+    cur.execute(f"DELETE FROM persons WHERE id={id};")
